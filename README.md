@@ -14,3 +14,8 @@ api_token_local = "<api-token-from chirpstack>"
 local_appID = "<app-id-from-chirpstack>"
 cloud_appID = "<app-id-from-chirpstack>"
 ```
+
+Set up a venv (not covered here) and run the following to install the required dependencies.
+```sh
+pip install -r requirements.txt
+```
