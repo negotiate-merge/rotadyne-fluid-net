@@ -1,4 +1,4 @@
-# Connect to TTS MQTT Server and receive uplink messages using the Paho MQTT Python client library
+# Connect to Chirpstack MQTT Server and receive uplink messages using the Paho MQTT Python client library
 #
 # Original source:
 # https://github.com/descartes/TheThingsStack-Integration-Starters/blob/main/MQTT-to-Tab-Python3/TTS.MQTT.Tab.py
@@ -48,45 +48,8 @@ def get_value_from_json_object(obj, key):
 def stop(client):
     client.disconnect()
     print("\nExit")
+    logging.info("Controller process terminated")
     sys.exit(0)
-
-
-# Write uplink to tab file
-def save_to_file(some_json):
-    end_device_ids = some_json["end_device_ids"]
-    device_id = end_device_ids["device_id"]
-    application_id = end_device_ids["application_ids"]["application_id"]
-    received_at = some_json["received_at"]
-
-    if 'uplink_message' in some_json:
-        uplink_message = some_json["uplink_message"]
-        f_port = get_value_from_json_object(uplink_message, "f_port")
-
-        # check if f_port is found
-        if f_port != '-':
-            f_cnt = get_value_from_json_object(uplink_message, "f_cnt")
-            frm_payload = uplink_message["frm_payload"]
-            # If decoded_payload is a json object or a string "-" it will be converted to string
-            decoded_payload = str(get_value_from_json_object(uplink_message, "decoded_payload"))
-            rssi = get_value_from_json_object(uplink_message["rx_metadata"][0], "rssi")
-            snr = get_value_from_json_object(uplink_message["rx_metadata"][0], "snr")
-            data_rate_index = get_value_from_json_object(uplink_message["settings"], "data_rate_index")
-            consumed_airtime = get_value_from_json_object(uplink_message, "consumed_airtime")
-
-            # Daily log of uplinks
-            now = datetime.now()
-            path_n_file = now.strftime("%Y%m%d") + ".txt"
-            print(path_n_file)
-            if not os.path.isfile(path_n_file):
-                with open(path_n_file, 'a', newline='') as tabFile:
-                    fw = csv.writer(tabFile, dialect='excel-tab')
-                    fw.writerow(["received_at", "application_id", "device_id", "f_port", "f_cnt", "rssi", "snr",
-                                 "data_rate_index", "consumed_airtime", "frm_payload", "decoded_payload"])
-
-            with open(path_n_file, 'a', newline='') as tabFile:
-                fw = csv.writer(tabFile, dialect='excel-tab')
-                fw.writerow([received_at, application_id, device_id, f_port, f_cnt, rssi, snr,
-                             data_rate_index, consumed_airtime, frm_payload, decoded_payload])
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -117,13 +80,16 @@ def on_message(client, userdata, message):
         if emergency_switch == 'L' and control_switch == 'L' and not pumping:
             switch(DEVICE_ID, dm.r2On)              # Switch pump on
             print("Pump turned on")
+            logging.info(f'{DEVICE_ID} pumping activated')
         elif pumping:
             if control_switch == 'H':
                 switch(DEVICE_ID, dm.r2Off)             # Switch pump off
                 print("Pump turned off - normal operation")
+                logging.info(f'{DEVICE_ID} pumping de-activated')
             if emergency_switch == 'H':
                 switch(DEVICE_ID, dm.r2Off)             # Switch pump off
                 print("Pump turned off - emergency")
+                logging.warning(f'{DEVICE_ID} pumping stopped due to emergency switch')
 
     if DEBUG:
         # print("Payload (Collapsed): " + str(message.payload))
@@ -143,11 +109,15 @@ def on_disconnect(client, userdata, rc):
     print("\nDisconnected with result code = " + str(rc))
 
 
+'''
 def on_log(client, userdata, level, buf):
     print("\nLog: " + buf)
     logging_level = client.LOGGING_LEVEL[level]
     logging.log(logging_level, buf)
-
+'''
+# Configure logging - removed the encoding='utf-8' arg
+logging.basicConfig(filename='controller.log', level=logging.INFO, \
+                    format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # Generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
@@ -163,15 +133,19 @@ mqttc.on_message = on_message
 mqttc.on_disconnect = on_disconnect
 # mqttc.on_log = on_log  # Logging for debugging OK, waste
 
+logging.info("Controller process started")
 print("Connecting to broker: " + PUBLIC_TLS_ADDRESS + ":" + str(PUBLIC_TLS_ADDRESS_PORT))
+logging.info("Connecting to broker: " + PUBLIC_TLS_ADDRESS + ":" + str(PUBLIC_TLS_ADDRESS_PORT))
 mqttc.connect(PUBLIC_TLS_ADDRESS, PUBLIC_TLS_ADDRESS_PORT, 60)
 
 if len(DEVICE_ID) != 0:
     topic = "application/" + APP_ID + "/device/" + DEVICE_ID + "/event/up"
     print("subscribe to topic " + topic + " with QOS = " + str(QOS))
     mqttc.subscribe(topic, QOS)
+    logging.info("subscribed to topic " + topic + " with QOS = " + str(QOS))
 else:
     print("Can not subscribe to any topic")
+    logging.critical("Could not subscribe to any topic")
     stop(mqttc)    
 
 print("And run forever")
