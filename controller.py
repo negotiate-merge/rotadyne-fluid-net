@@ -153,6 +153,6 @@ try:
     run = True
     while run:
         mqttc.loop(10)  # seconds timeout / blocking time
-        print(".", end="", flush=True)  # feedback to the user that something is actually happening
+        # print(".", end="", flush=True)  # feedback to the user that something is actually happening
 except KeyboardInterrupt:
     stop(mqttc)
