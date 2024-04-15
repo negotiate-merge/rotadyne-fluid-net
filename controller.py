@@ -116,7 +116,7 @@ def on_log(client, userdata, level, buf):
     logging.log(logging_level, buf)
 '''
 # Configure logging - removed the encoding='utf-8' arg
-logging.basicConfig(filename='controller.log', level=logging.INFO, \
+logging.basicConfig(filename='/home/dev/rotadyne-fluid-net/controller.log', level=logging.INFO, \
                     format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # Generate client ID with pub prefix randomly
