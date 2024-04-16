@@ -1,0 +1,15 @@
+[Unit]
+Description=Pump controller service - monitor and manage end nodes through chirpstack
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/nigel/
+User=nigel
+Restart=always
+StartLimitInterval=30
+ExecStart=/home/nigel/rotadyne-fluid-net/venv/bin/python3 /home/nigel/rotadyne-fluid-net/controller.py
+KillSignal=SIGINT
+
+[Install]
+WantedBy=mulit-user.target
