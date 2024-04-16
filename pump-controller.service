@@ -12,4 +12,4 @@ ExecStart=/home/nigel/rotadyne-fluid-net/venv/bin/python3 /home/nigel/rotadyne-f
 KillSignal=SIGINT
 
 [Install]
-WantedBy=mulit-user.target
+WantedBy=multi-user.target
