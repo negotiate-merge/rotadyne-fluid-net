@@ -3,11 +3,11 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 
 ### Objectives - past and present
 
-[ ] Build a simple gui app that shows (switch states, pump state, button to control pump, simple log output for verification)
-[ ] Device a way to suspend and resume pump-controller.service remotely to enable manual overide gui app.
-[ ] Increase QoS of all messaging to level 1. 
-This has arisen due to the observation of a missed packet on an emergency uplink. Minimally, the sender of a message should have assurance that it's message has been received.
-[x] Automate pump controller via the use of systemd service - named 'pump-controller.service'
+- [ ] Build a simple gui app that shows (switch states, pump state, button to control pump, simple log output for verification)
+- [ ] Device a way to suspend and resume pump-controller.service remotely to enable manual overide gui app.
+- [ ] Increase QoS of all messaging to level 1. 
+  This has arisen due to the observation of a missed packet on an emergency uplink. Minimally, the sender of a message should have assurance that it's message has been received.
+- [x] Automate pump controller via the use of systemd service - named 'pump-controller.service'
 
 
 
