@@ -3,10 +3,10 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 
 ### Objectives - past and present
 
-- [ ] Build a simple gui app that shows (switch states, pump state, button to control pump, simple log output for verification)
-- [ ] Device a way to suspend and resume pump-controller.service remotely to enable manual overide gui app.
-- [ ] Increase QoS of all messaging to level 1. 
-  This has arisen due to the observation of a missed packet on an emergency uplink. Minimally, the sender of a message should have assurance that it's message has been received.
+- [ ] Build a simple gui app that shows (switch states, pump state, button to control pump, simple log output for verification) Use a regex on return code from systemctl status to search for active/inactive and update service state according to that. Run a status query at the end of any state change. (In Progress)
+- [x] Sub process ssh issues resulting apparently from 32bit version of python, have installed 64 bit version. See the [stack-overflow post](https://stackoverflow.com/questions/65928671/python-subprocess-cant-call-ssh)
+- [x] Device a way to suspend and resume pump-controller.service remotely to enable manual overide gui app. 
+- [x] Increase QoS of all messaging to level 1. This is active by default in trigger mode on the end nodes. 
 - [x] Automate pump controller via the use of systemd service - named 'pump-controller.service'
 
 

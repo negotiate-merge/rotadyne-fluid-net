@@ -69,27 +69,31 @@ def on_message(client, userdata, message):
 
     parsed_json = json.loads(message.payload)
     # print("length of json [object] is", len(parsed_json['object']))
-    if len(parsed_json['object']) == 12:
-        pumping = True if parsed_json['object']['RO2_status'] == 'ON' else False     # RO2
-        emergency_switch = parsed_json['object']['DI1_status']      # DI1
-        control_switch = parsed_json['object']['DI2_status']        # DI2
-        pump = parsed_json['object']['RO2_status']                  # RO2
+    try:
+        if len(parsed_json['object']) == 12:
+            pumping = True if parsed_json['object']['RO2_status'] == 'ON' else False     # RO2
+            emergency_switch = parsed_json['object']['DI1_status']      # DI1
+            control_switch = parsed_json['object']['DI2_status']        # DI2
+            pump = parsed_json['object']['RO2_status']                  # RO2
 
-        ''' Values are inverted - L indicates high, H indicates low '''
-        print(f'emergency = {emergency_switch}  control = {control_switch}  pump = {pump}\npumping = {pumping}')
-        if emergency_switch == 'L' and control_switch == 'L' and not pumping:
-            switch(DEVICE_ID, dm.r2On)              # Switch pump on
-            print("Pump turned on")
-            logging.info(f'{DEVICE_ID} pumping activated')
-        elif pumping:
-            if control_switch == 'H':
-                switch(DEVICE_ID, dm.r2Off)             # Switch pump off
-                print("Pump turned off - normal operation")
-                logging.info(f'{DEVICE_ID} pumping de-activated')
-            if emergency_switch == 'H':
-                switch(DEVICE_ID, dm.r2Off)             # Switch pump off
-                print("Pump turned off - emergency")
-                logging.warning(f'{DEVICE_ID} pumping stopped due to emergency switch')
+            ''' Values are inverted - L indicates high, H indicates low '''
+            print(f'emergency = {emergency_switch}  control = {control_switch}  pump = {pump}\npumping = {pumping}')
+            if emergency_switch == 'L' and control_switch == 'L' and not pumping:
+                switch(DEVICE_ID, dm.r2On)              # Switch pump on
+                print("Pump turned on")
+                logging.info(f'{DEVICE_ID} pumping activated')
+            elif pumping:
+                if control_switch == 'H':
+                    switch(DEVICE_ID, dm.r2Off)             # Switch pump off
+                    print("Pump turned off - normal operation")
+                    logging.info(f'{DEVICE_ID} pumping de-activated')
+                if emergency_switch == 'H':
+                    switch(DEVICE_ID, dm.r2Off)             # Switch pump off
+                    print("Pump turned off - emergency")
+                    logging.warning(f'{DEVICE_ID} pumping stopped due to emergency switch')
+    except KeyError:
+        # We have a different response that we want to read the output of
+        print("Payload (Expanded): \n" + json.dumps(parsed_json, indent=4))    
 
     if DEBUG:
         # print("Payload (Collapsed): " + str(message.payload))
