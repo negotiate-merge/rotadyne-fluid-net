@@ -55,7 +55,7 @@ def emergency():
 	else: emer.grid_remove()
  
 
-
+# Will this change my tab space problem?
 
 # Confirgure main window
 root = Tk()
