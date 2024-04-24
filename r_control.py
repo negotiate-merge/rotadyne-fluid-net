@@ -22,10 +22,10 @@ def send(action):
 	if 'status' in action:
 		if "Active: active" in stdout.decode('utf-8'): 
 			# print("Active")
-			return "active"
+			return True
 		if "Active: inactive" in stdout.decode('utf-8'): 
 			# print("Inactive")
-			return "inactive"
+			return False
 	
 
 
