@@ -17,42 +17,42 @@ pump_running = False
 emergency = False
 
 def switch_service():
-	global service_running
-	if service_running:
-		controller_name.set("Start Controller")
-		print("Service stopped")
-		s.configure('Controller.TFrame', background='red', borderwidth=5, relief='raised')
-		service_running = False # The service will be stopped
-	else:
-		controller_name.set("Stop Controller")
-		print("Service started")
-		s.configure('Controller.TFrame', background='green', borderwidth=5, relief='raised')
-		service_running = True	# The service will be started
+    global service_running
+    if service_running:
+        controller_name.set("Start Controller")
+        print("Service stopped")
+        s.configure('Controller.TFrame', background='red', borderwidth=5, relief='raised')
+        service_running = False # The service will be stopped
+    else:
+        controller_name.set("Stop Controller")
+        print("Service started")
+        s.configure('Controller.TFrame', background='green', borderwidth=5, relief='raised')
+        service_running = True	# The service will be started
 
 
 def switch_pump():
-	global pump_running
-	if pump_running:
-		pump_name.set("Start Pump")
-		print("Pump stopped")
-		s.configure('Pump.TFrame', background='red', borderwidth=5, relief='raised')
-		pump_running = False
-	else:
-		pump_name.set("Stop Pump")
-		print("Pump Started")
-		s.configure('Pump.TFrame', background='green', borderwidth=5, relief='raised')
-		pump_running = True
-	# dn.switch(DEVICE_ID, dm.r2Off)
+    global pump_running
+    if pump_running:
+        pump_name.set("Start Pump")
+        print("Pump stopped")
+        s.configure('Pump.TFrame', background='red', borderwidth=5, relief='raised')
+        pump_running = False
+    else:
+        pump_name.set("Stop Pump")
+        print("Pump Started")
+        s.configure('Pump.TFrame', background='green', borderwidth=5, relief='raised')
+        pump_running = True
+    # dn.switch(DEVICE_ID, dm.r2Off)
  
 
 """ 	
-		If we have an emergency we want to run the following, but am unsure how to go about that at this stage.
- 		Have left it here for later.
+        If we have an emergency we want to run the following, but am unsure how to go about that at this stage.
+        Have left it here for later.
 """
 
 def emergency():
-	if emergency: emer.grid(column=2, row=4, padx=10, pady=5, sticky=W)
-	else: emer.grid_remove()
+    if emergency: emer.grid(column=2, row=4, padx=10, pady=5, sticky=W)
+    else: emer.grid_remove()
  
 
 # Will this change my tab space problem?

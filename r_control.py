@@ -10,23 +10,22 @@ start = 'sudo systemctl start pump-controller'
 status = 'sudo systemctl status pump-controller'
 
 def send(action):
-	sp = subprocess.Popen(["ssh", "-i", k, "-p", "22", user + "@" + host, action],
-					shell=True, 
-					stdout=subprocess.PIPE, 
-					stderr=subprocess.PIPE)
+    sp = subprocess.Popen(["ssh", "-i", k, "-p", "22", user + "@" + host, action],
+                        shell=True, 
+                        stdout=subprocess.PIPE, 
+                        stderr=subprocess.PIPE)
 	
-	stdout, stderr = sp.communicate()
+    stdout, stderr = sp.communicate()
 
-	# print(f"stdout: {stdout.decode('utf-8')}\n\nstderr: {stderr.decode('utf-8')}")
+    # print(f"stdout: {stdout.decode('utf-8')}\n\nstderr: {stderr.decode('utf-8')}")
 
-	if 'status' in action:
-		if "Active: active" in stdout.decode('utf-8'): 
-			# print("Active")
-			return True
-		if "Active: inactive" in stdout.decode('utf-8'): 
-			# print("Inactive")
-			return False
-	
+    if 'status' in action:
+        if "Active: active" in stdout.decode('utf-8'): 
+            # print("Active")
+            return True
+        if "Active: inactive" in stdout.decode('utf-8'): 
+            # print("Inactive")
+            return False
 
 
 ''' Useful for debugging
