@@ -3,6 +3,8 @@ import d_send as dn
 import dm
 from tkinter import *
 from tkinter import ttk
+import threading
+from functools import partial
 
 # Vars
 DEVICE_ID = "a84041e081893e7f"
@@ -11,37 +13,48 @@ off = "Red"
 indicator_h = 50
 indicator_w = 150
 
-# Get initial status of service
-service_running = rc.send(rc.status)
-pump_running = False
-emergency = False
+# Need a mutable object for return value of threading for service_running
+status = {
+    'service_running': False,
+    'pump_running': False,
+    'emergency': False,
+}
 
-def switch_service():
-    global service_running
-    if service_running:
-        controller_name.set("Start Controller")
-        print("Service stopped")
-        s.configure('Controller.TFrame', background='red', borderwidth=5, relief='raised')
-        service_running = False # The service will be stopped
+rc.send(rc.status, status)
+
+print(status)
+
+def switch_service(status):
+    ''' All rc.send calls will update status['service_running'] '''
+    if status['service_running']:
+        t = threading.Thread(target=rc.send, args=(rc.stop, status,))
+        t.start(); t.join()
+        if not status['service_running']:
+            controller_name.set("Start Controller")
+            print("Service stopped")
+            s.configure('Controller.TFrame', background='red', borderwidth=5, relief='raised')
     else:
-        controller_name.set("Stop Controller")
-        print("Service started")
-        s.configure('Controller.TFrame', background='green', borderwidth=5, relief='raised')
-        service_running = True	# The service will be started
+        t = threading.Thread(target=rc.send, args=(rc.start, status,))
+        t.start(); t.join()
+        if status['service_running']:
+            controller_name.set("Stop Controller")
+            print("Service started")
+            s.configure('Controller.TFrame', background='green', borderwidth=5, relief='raised')
 
 
-def switch_pump():
-    global pump_running
-    if pump_running:
+
+def switch_pump(status):
+    if status['pump_running']:
         pump_name.set("Start Pump")
+        # threading.Thread(target=lambda a: rc.send())  FIX THIS
         print("Pump stopped")
         s.configure('Pump.TFrame', background='red', borderwidth=5, relief='raised')
-        pump_running = False
+        status['pump_running'] = False
     else:
         pump_name.set("Stop Pump")
         print("Pump Started")
         s.configure('Pump.TFrame', background='green', borderwidth=5, relief='raised')
-        pump_running = True
+        status['pump_running'] = True
     # dn.switch(DEVICE_ID, dm.r2Off)
  
 
@@ -53,7 +66,6 @@ def switch_pump():
 def emergency():
     if emergency: emer.grid(column=2, row=4, padx=10, pady=5, sticky=W)
     else: emer.grid_remove()
- 
 
 # Will this change my tab space problem?
 
@@ -86,12 +98,14 @@ emer = ttk.Frame(mainframe, width=indicator_w, height=indicator_h, style='Emerge
 
 # Controller button
 controller_name = StringVar()
-controller_name.set("Stop Controller" if service_running else "Start Controller")
-btn_service = ttk.Button(mainframe, textvariable=controller_name, command=switch_service).grid(column=1, row=5)
+controller_name.set("Stop Controller" if status['service_running'] else "Start Controller")
+btn_service = ttk.Button(mainframe, textvariable=controller_name,
+                         command=partial(switch_service, status)).grid(column=1, row=5)
 
 # Pump switch button
 pump_name = StringVar()
-pump_name.set("Stop Pump" if pump_running else "Start Pump")
-btn_pump = ttk.Button(mainframe, textvariable=pump_name, command=switch_pump).grid(column=1, row=6)
+pump_name.set("Stop Pump" if status['pump_running'] else "Start Pump")
+btn_pump = ttk.Button(mainframe, textvariable=pump_name,
+                      command=partial(switch_pump, status)).grid(column=1, row=6)
 
 root.mainloop()

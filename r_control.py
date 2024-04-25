@@ -5,11 +5,11 @@ user = config.r_user
 host = config.cloud_server
 k = config.r_key_path
 
-stop = 'sudo systemctl stop pump-controller'
-start = 'sudo systemctl start pump-controller'
+stop = 'sudo systemctl stop pump-controller && systemctl status pump-controller'
+start = 'sudo systemctl start pump-controller && systemctl status pump-controller'
 status = 'sudo systemctl status pump-controller'
 
-def send(action):
+def send(action, status):
     sp = subprocess.Popen(["ssh", "-i", k, "-p", "22", user + "@" + host, action],
                         shell=True, 
                         stdout=subprocess.PIPE, 
@@ -17,16 +17,18 @@ def send(action):
 	
     stdout, stderr = sp.communicate()
 
+    status['service_running'] = True if "Active: active" in stdout.decode('utf-8') else False
+    """
+
     # print(f"stdout: {stdout.decode('utf-8')}\n\nstderr: {stderr.decode('utf-8')}")
 
     if 'status' in action:
-        if "Active: active" in stdout.decode('utf-8'): 
-            # print("Active")
-            return True
-        if "Active: inactive" in stdout.decode('utf-8'): 
-            # print("Inactive")
-            return False
+        # if "Active: active" in stdout.decode('utf-8'):
+        status['service_running'] = True if "Active: active" in stdout.decode('utf-8') else False
+        # else:
+        #     status['service_running'] = True
 
+    """
 
 ''' Useful for debugging
 try:
