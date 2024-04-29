@@ -3,7 +3,7 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 
 ### Objectives - past and present
 
-- [ ] When the gateway goes offline and the node is unable to communicate the messages get quede up due to having not recevied an ack.. then once the node comes back online it spams chirpstack and by extension the mqtt feed which resluts in a preriod of sporadic behaviour. This should be avoided somehow as we do not require unecessary switching of the machine in response to events of the past we only care about the current state in this case. Perhaps we could look at a timestop validity check?
+- [ ] When the gateway goes offline and the node is unable to communicate the messages get quede' up due to having not recevied an ack. Once the node comes back online it spams chirpstack and by extension the mqtt feed which resluts in a preriod of sporadic behaviour. This should be avoided as we do not require unecessary switching of the machine in response to events of the past, we only care about the current state in this case. Perhaps we could look at a timestamp validity check?
 - [ ] Figure out how to run gui from desktop icon.
 - [ ] Implement a [Logging window](https://tkdocs.com/tutorial/text.html#modifying) in to the gui app (not important)
 - [ ] Use a  verticle 'progress bar' widgit to display tank level instead of light indicator. Eg( 40% for open 80% for closed)
@@ -17,9 +17,17 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 - [x] Increase QoS of all messaging to level 1. This is active by default in trigger mode on the end nodes. 
 - [x] Automate pump controller via the use of systemd service - named 'pump-controller.service'
 
+__After cloNing this repo you will need to run the following to create and enable the controller service__
+```sh
+$ sudo ln -sf <PATH_TO_CLONED_REPO>rotadyne-fluid-net/pump-controller.service /etc/systemd/system/pump-controller.service
+$ sudo systemctl daemon-reload
+$ sudo systemctl start pump-controller
+$ sudo systemctl enable pump-controller
+```
 
-We are using python 3.11 64 bit. Could not run ssh via subprocess as we had 32 bit pythonn installed and the ssh program was 64 bit.
+__Configuration of the hardware/software stack__ can be found at [setup.md](setup.md)
 
+_Everythong below this point will be updated shortly_
 To use this repository it is a requirement that you have the sensitive information stored in a file named 'config.py' in the following format.
 Only one is required, cloud or local.
 ```sh
