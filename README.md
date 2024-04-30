@@ -3,6 +3,11 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 
 ### Objectives - past and present
 
+- [x] Configure static IP for local chirpstack in Gateway LAN via config file
+- [ ] Configure Port forwarding rules from WAN -> LAN to allow for control behind the gateway NAT
+  - ssh WAN:2223 -> 10.130.1.210:22
+  - http WAN:8080 -> 10.130.1.210:8080
+  - mqtt WAN:1883 -> 10.130.1.210:1883
 - [ ] When the gateway goes offline and the node is unable to communicate the messages get quede' up due to having not recevied an ack. Once the node comes back online it spams chirpstack and by extension the mqtt feed which resluts in a preriod of sporadic behaviour. This should be avoided as we do not require unecessary switching of the machine in response to events of the past, we only care about the current state in this case. Perhaps we could look at a timestamp validity check?
 - [ ] Figure out how to run gui from desktop icon.
 - [ ] Implement a [Logging window](https://tkdocs.com/tutorial/text.html#modifying) in to the gui app (not important)
