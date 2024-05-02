@@ -3,7 +3,7 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 
 ### Objectives - past and present
 
-- [x] Configure static IP for local chirpstack in Gateway LAN via config file
+- [ ] Organize ssh keys for local server and fix gui usage of config.py.
 - [ ] Configure Port forwarding rules from WAN -> LAN to allow for control behind the gateway NAT
   - ssh WAN:2223 -> 10.130.1.210:22
   - http WAN:8080 -> 10.130.1.210:8080

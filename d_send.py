@@ -8,9 +8,9 @@ import config
 API_PORT = '8080'
 
 # This must point to the API interface.
-server = config.cloud_server + ':' + API_PORT
+server = config.server + ':' + API_PORT
 # The API token (retrieved using the web-interface).
-api_token = config.api_token_cloud
+api_token = config.api_token
 
 def switch(dev_eui:str, byte_object):
     # Connect without using TLS.
@@ -24,7 +24,7 @@ def switch(dev_eui:str, byte_object):
 
     # Construct request.
     req = api.EnqueueDeviceQueueItemRequest()
-    req.queue_item.confirmed = False
+    req.queue_item.confirmed = True
     req.queue_item.data = byte_object
     req.queue_item.dev_eui = dev_eui
     req.queue_item.f_port = 2

@@ -20,8 +20,8 @@ from d_send import switch
 from datetime import datetime
 
 # Chirpstack connection details
-PUBLIC_TLS_ADDRESS = config.cloud_server
-APP_ID = config.cloud_appID
+PUBLIC_TLS_ADDRESS = config.server
+APP_ID = config.app_id
 
 PUBLIC_TLS_ADDRESS_PORT = 1883
 DEVICE_ID = "a84041e081893e7f"
