@@ -2,7 +2,7 @@ import subprocess
 import config
 
 user = config.r_user
-host = config.cloud_server
+host = config.server
 k = config.r_key_path
 
 stop = 'sudo systemctl stop pump-controller && systemctl status pump-controller'
