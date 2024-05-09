@@ -3,24 +3,28 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 
 ### Objectives - past and present
 
-- [ ] Configure Port forwarding rules from WAN -> LAN to allow for control behind the gateway NAT
-  - ssh WAN:2223 -> 10.130.1.210:22
-  - http WAN:8080 -> 10.130.1.210:8080
-  - mqtt WAN:1883 -> 10.130.1.210:1883
+#### Next steps
+Main objectives
+- Build a web app that displays pump locations and allows reading of status and manual pump control as follows: 
+- High importance items
+  1. Verification of high high level
+  2. Remote turn off
+  3. Reading from presure sensor
+
+- For the Ui the following things need to be considered.
+  1. The page should have a google map type view and the pump locations should be indicated by a dot.
+  2. These dots should be coloured { green: pump-running, orange: standby, red: emergency }
+  3. Hover over or clicking on a dot should bring up the information on the pump (Water pressure, amps drawn) or take to an independant screen where these actions can be triggered.
+
+
+
+The current scada system in use is the scadapack 334 by schnieder. Need to look in to this to detirmine how it functions and how we can interface with it.
+
+
 - [ ] When the gateway goes offline and the node is unable to communicate the messages get quede' up due to having not recevied an ack. Once the node comes back online it spams chirpstack and by extension the mqtt feed which resluts in a preriod of sporadic behaviour. This should be avoided as we do not require unecessary switching of the machine in response to events of the past, we only care about the current state in this case. Perhaps we could look at a timestamp validity check?
-- [ ] Figure out how to run gui from desktop icon.
-- [ ] Implement a [Logging window](https://tkdocs.com/tutorial/text.html#modifying) in to the gui app (not critical)
-- [ ] Use a  verticle 'progress bar' widgit to display tank level instead of light indicator. Eg( 40% for open 80% for closed) (not critical)
-- [x] Organize ssh keys for local server and fix gui usage of config.py.
+- [ ] Having issue with config.py and pump-controller.service remaining as a default file (without specific info) in github. Only want it to be pulled on initial clone, then to be configured by user, but do not want the file pushed or pulled beyond that point.
 - [x] Restarting the controller on server requires a poll uplink at the end of the procedure to get curent status.
-- [x] Buttons display incorrectly at gui start up.
-- [x] Hide the emergency light when emergency is not present but have the layout of the page maintained.
-- [x] Incorporate threads in to gui app for remote procedure calls / remote commands. Connect logic to live data feeds.
-- [x] Build a simple gui UI that shows switch states, pump state, button to control pump. 
 - [x] Sub process ssh issues resulting apparently from 32bit version of python, have installed 64 bit version. See the [stack-overflow post](https://stackoverflow.com/questions/65928671/python-subprocess-cant-call-ssh)
-- [x] Device a way to suspend and resume pump-controller.service remotely to enable manual overide gui app. 
-- [x] Increase QoS of all messaging to level 1. This is active by default in trigger mode on the end nodes. 
-- [x] Automate pump controller via the use of systemd service - named 'pump-controller.service'
 
 __After cloning this repo you will need to run the following to create and enable the controller service__
 ```sh
