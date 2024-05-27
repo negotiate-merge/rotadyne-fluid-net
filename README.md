@@ -16,6 +16,24 @@ Main objectives
   2. These dots should be coloured { green: pump-running, orange: standby, red: emergency }
   3. Hover over or clicking on a dot should bring up the information on the pump (Water pressure, amps drawn) or take to an independant screen where these actions can be triggered.
 
+### Set up a React map web application
+Installation of node is not straight forward. Follow this [freeCodeCamp tutorial](freecodecamp.org/news/how-to-install-node-js-on-ubuntu/) to get it done right.
+
+There are are modifications to the ~/.bashrc file that may need correcting in order to function properly.
+
+```sh
+# Create a react app
+$ npx create-react-app <app_name>
+
+# Install the required library
+$ npm install @vis.gl/react-google-maps
+```
+Configure the application according to [this tutorial](https://www.youtube.com/watch?v=7LNl2JlZKHA) is regards to deleting uneeded files and use flask on the backend.
+
+To run the react app
+`$ npm start`
+
+
 
 
 The current scada system in use is the scadapack 334 by schnieder. Need to look in to this to detirmine how it functions and how we can interface with it.
