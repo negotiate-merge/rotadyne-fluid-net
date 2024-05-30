@@ -1,2 +1,4 @@
 chirpstack-api
 paho-mqtt
+flask
+flask-mqtt
