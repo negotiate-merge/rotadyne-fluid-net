@@ -77,7 +77,9 @@ function App() {
                     gestureHandling={'greedy'}
                     disableDefaultUI={true}
                 >
-                    <Markers points={pumps} />
+                    {pumps.map(points => 
+                        <Marker point={points} />
+                    )}
                 </Map>
             </div>
         </APIProvider>
@@ -85,7 +87,7 @@ function App() {
 }
 
 
-const Markers = ({points}) => {
+const Marker = ({point}) => {
 
     const [markerRef, marker] = useAdvancedMarkerRef();
     const [infoWindowShown, setInfoWindowShown] = useState(false); // Switch for info-window
@@ -98,7 +100,7 @@ const Markers = ({points}) => {
     const handleClose = useCallback(() => setInfoWindowShown(false),[]);
 
     return <>
-        {points.map(point => 
+        {
             <AdvancedMarker
                 ref={markerRef}
                 position={{ lat: point.lat, lng: point.lng }} 
@@ -113,7 +115,7 @@ const Markers = ({points}) => {
                     >
                         <p>{point.title}</p>
                 </InfoWindow> }
-            </AdvancedMarker>)}
+            </AdvancedMarker>}
     </>
 }
 
