@@ -4,6 +4,14 @@ Initial exploration in to the use of a chirpstack lorawan implementation to faci
 ### Objectives - past and present
 
 #### Next steps
+- [ ] Add pump control button functionality, might require another branch as is major overhaul.
+- [X] Build out the Infowindow UI so that it incorporates all of the device object data.
+- [X] Connect app to Flask backend so that the json object is able to be passed through in a consumable format.
+- [X] Build out the flask-mqtt application in order to parse out information of relevance from the mqtt feed, update and return json objects.
+- [X] Figure out how to get react to periodically retrieve data from the flask-mqtt endpoint
+
+Video on map configure to dark mode https://www.youtube.com/watch?v=YyuyqPVQNrs
+
 Main objectives
 - Build a web app that displays pump locations and allows reading of status and manual pump control as follows: 
 - High importance items
