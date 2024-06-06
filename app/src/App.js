@@ -8,52 +8,21 @@ import {
     useAdvancedMarkerRef,
 } from "@vis.gl/react-google-maps";
 
-const pumps = [
-    {   
-        devId: "a84041e081893e7f",
-        title: "Home",
-        lat: -33.707055119346386,
-        lng: 151.14593296712843,
-        full: 0,
-        emergency: 0,
-        current: 0,
-    },
-    {   
-        devId: "a84041e081893e80",
-        title: "Lost",
-        lat: -33.703436,
-        lng: 151.152421,
-        full: 0,
-        emergency: 0,
-        current: 0,
-    },
-    {   
-        devId: "a84041e081893e81",
-        title: "Found",
-        lat: -33.703273,
-        lng: 151.149308,
-        full: 0,
-        emergency: 0,
-        current: 0,
-    },
-]
-
 function App() {
     const [data, setData] = useState([{}]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            fetch("/devices").then(
-                res => res.json()
-            ).then(
-                data => {
-                    setData(data);
-                    // console.log(data);
-                }
-            ).catch(error => {
+            fetch("/devices")
+            .then((res) => res.json())
+            .then((data) => {
+                setData(data);
+                console.log(data);
+            })
+            .catch((error) => {
                 console.error("Error fetching data: ", error);
             })
-        }, 10000)
+        }, 5000);
 
         return () => clearInterval(intervalId);
 
@@ -77,15 +46,11 @@ function App() {
                     defaultCenter={{ lat: -33.707055119346386, lng: 151.14593296712843 }}
                     mapId={map_id}
                     gestureHandling={'greedy'}
-                    disableDefaultUI={true}
+                    disableDefaultUI={false}
                 >
-                    
-                    {/*pumps.map(pumps => console.log("JS Pumps: ", pumps))*/}
-                    
-                    {data.map(points => {// changed pumps.map to data.map
-                        
-                        <Marker key={points.devId} point={points} />
-                    })}
+                    {data.map((point) => (
+                        <Marker key={point.devId} point={point} />
+                    ))}
                 </Map>
             </div>
         </APIProvider>
@@ -108,31 +73,28 @@ const Marker = ({point}) => {
     const [markerRef, marker] = useAdvancedMarkerRef();
     const [infoWindowShown, setInfoWindowShown] = useState(false); // Switch for info-window
 
-    const handleMarkerClick = useCallback(() =>
-        setInfoWindowShown(isShown => !isShown),
-    []
-    );
-
+    const handleMarkerClick = useCallback(() => setInfoWindowShown(isShown => !isShown), []);
     const handleClose = useCallback(() => setInfoWindowShown(false),[]);
-    console.log(point)
 
-    return <>
-        {
-            
-            <AdvancedMarker
-                ref={markerRef}
-                position={ { lat: point.lat, lng: point.lng }} 
+    if (!point.lat || !point.lng) {
+        console.error('Latitude or longitude is missing for point', point);
+        return null;
+    }
 
-                title={point.title}
-                onClick={handleMarkerClick}>
-                    <Pin background={ pinColor(point) } borderColor={ pinColor(point) } glyphColor={ "black" } />
-                {infoWindowShown && <InfoWindow className="iwColumn"
-                    anchor={marker} 
-                    /*position={{ lat: point.lat, lng: point.lng }} */
-                    onClose={handleClose}
-                    >
-                        <h3>{point.title}</h3>
-                        <table>
+    return (
+        <AdvancedMarker
+            ref={markerRef}
+            position={{ lat: point.lat, lng: point.lng }} 
+            key={point.devId}
+            title={point.title}
+            onClick={handleMarkerClick}
+        >
+            <Pin background={ pinColor(point) } borderColor={ pinColor(point) } glyphColor="black" />
+            {infoWindowShown && 
+                <InfoWindow className="iwColumn" anchor={marker} onClose={handleClose}>
+                    <h3>{point.title}</h3>
+                    <table>
+                        <tbody>
                             <tr>
                                 <td>Full:</td>
                                 <td>{ (point.full) ? "Yes" : "No" }</td>
@@ -153,14 +115,12 @@ const Marker = ({point}) => {
                                 <td>Pump:</td>
                                 <td><button>Switch</button></td>
                             </tr>
-                        </table>
-                </InfoWindow> }
-            </AdvancedMarker>}
-    </>
-}
-
-// taken out of return statement above                      key={point.devId}
-
+                        </tbody>
+                    </table>
+            </InfoWindow> }
+        </AdvancedMarker>
+    );
+};
 
 export default App
 
