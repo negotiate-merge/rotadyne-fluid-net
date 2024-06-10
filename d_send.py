@@ -1,16 +1,17 @@
-import os
-import sys
-
 import grpc
 from chirpstack_api import api
 import config
+import dm
+
 
 API_PORT = '8080'
-
 # This must point to the API interface.
 server = config.server + ':' + API_PORT
 # The API token (retrieved using the web-interface).
 api_token = config.api_token
+
+pump_on = dm.r2On
+pump_off = dm.r2Off
 
 def switch(dev_eui:str, byte_object):
     # Connect without using TLS.

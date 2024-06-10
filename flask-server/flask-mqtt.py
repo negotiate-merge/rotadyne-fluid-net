@@ -1,6 +1,15 @@
-from flask import Flask, request, jsonify
-from flask_mqtt import Mqtt
 import json
+import sys
+import os
+import sys
+
+root_dir = os.path.abspath(os.path.dirname('../d_send.py'))
+sys.path.append(root_dir)
+# print(sys.path)
+
+from flask import Flask, redirect, request, jsonify
+from flask_mqtt import Mqtt
+from d_send import switch, pump_on, pump_off
 
 app = Flask(__name__)
 
@@ -23,6 +32,7 @@ devices = [
         "lng": 151.14593296712843,
         "full": False,
         "emergency": False,
+        "pumping": False,
         "current": 0,
     },
     {
@@ -32,6 +42,7 @@ devices = [
         "lng": 151.152421,
         "full": False,
         "emergency": False,
+        "pumping": False,
         "current": 0,
     }
 ]
@@ -61,7 +72,6 @@ def handle_mqtt_message(client, userdata, message):
         if len(parsed_json['object']) == 12:
             for d in devices:
                 print(communicator, d['devId'])
-                pass
                 if communicator == d['devId']:
                     d['pumping'] = True if parsed_json['object']['RO2_status'] == 'ON' else False     # RO2
                     d['emergency'] = True if parsed_json['object']['DI1_status'] == 'H' else False      # DI1
@@ -85,20 +95,33 @@ Returned JSON has:\n\
         print('Error', e)
 
     # print('Received message on topic: {topic} with payload: {payload}'.format(**data))
-    # return devices
 
 
-@app.route("/devices")
+@app.route("/devices", methods=['GET'])
 def device_map():
 #    print(devices)
    return devices
 
 
+@app.route('/pump_switch', methods=['POST'])
+def pump_switch():
+    pump = request.get_json()
+    try:
+        switch(pump['devId'], (pump_off if pump['pumping'] else pump_on))
+    except:
+        print('grpc call failed - no valid device at head end')
+    print(pump)
+
+    return redirect("/devices")
+
+
+'''     Tutorial boiler plate Remove at later date
 @app.route('/publish', methods=['POST'])
 def publish_message():
    request_data = request.get_json()
    publish_result = mqtt_client.publish(request_data['topic'], request_data['msg'])
    return jsonify({'code': publish_result[0]})
+'''
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000)
+   app.run(host='0.0.0.0', port=5000, debug=True)

@@ -112,8 +112,23 @@ const Marker = ({point}) => {
                                 <td>{point.current} mA</td>
                             </tr>
                             <tr>
-                                <td>Pump:</td>
-                                <td><button>Switch</button></td>
+                                <td>Switch Pump:</td>
+                                <td>
+                                    <button type="submit" onClick={() => {
+                                        let xhr = new XMLHttpRequest();
+                                        let url = "/pump_switch";
+                                        xhr.open("POST", url, true);
+                                        xhr.setRequestHeader("Content-Type", "application/json")
+                                        xhr.onreadystatechange = function () {
+                                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                                XPathResult.innerHTML = this.response.Text;
+                                            }
+                                        };
+                                        var data = JSON.stringify(point);
+                                        xhr.send(data);
+                                    }
+                                    }>{(point.pumping) ? "Off" : "On"}</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
