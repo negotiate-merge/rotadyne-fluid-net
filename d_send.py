@@ -33,7 +33,7 @@ def switch(dev_eui:str, byte_object):
     resp = client.Enqueue(req, metadata=auth_token)
 
     # Print the downlink id
-    print(resp.id)
+    # print(resp.id)
 
 if __name__ == '__main__':
     dev_eui = "a84041e081893e7f"

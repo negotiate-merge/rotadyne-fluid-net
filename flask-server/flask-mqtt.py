@@ -71,7 +71,7 @@ def handle_mqtt_message(client, userdata, message):
     try:
         if len(parsed_json['object']) == 12:
             for d in devices:
-                print(communicator, d['devId'])
+                # print(communicator, d['devId'])
                 if communicator == d['devId']:
                     d['pumping'] = True if parsed_json['object']['RO2_status'] == 'ON' else False     # RO2
                     d['emergency'] = True if parsed_json['object']['DI1_status'] == 'H' else False      # DI1
@@ -102,11 +102,17 @@ def device_map():
 #    print(devices)
    return devices
 
-
+import subprocess
 @app.route('/pump_switch', methods=['POST'])
 def pump_switch():
     pump = request.get_json()
     try:
+        subprocess.run(["mosquitto_pub", 
+                           "-h", "34.87.236.101", 
+                           "-p", "1883",
+                           "-t", f"application/f65551c8-a6d4-48aa-b177-7567744a9540/device/{pump['devId']}/mode",
+                           "-m", ("override" if pump['pumping'] else "normal")])
+        # might need to cause a delay here but will test without for now.
         switch(pump['devId'], (pump_off if pump['pumping'] else pump_on))
     except:
         print('grpc call failed - no valid device at head end')
