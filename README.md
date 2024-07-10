@@ -5,11 +5,15 @@ Exploration in to the use of a chirpstack lorawan implementation to facilitate t
 The current scada system in use is the scadapack 334 by schnieder. Need to look in to this to detirmine how it functions and how we can interface with it.
 ^ It's a client server model.
 
-__UI__
+__Front end__
 - [ ] Reading from presure sensor
+- [ ] react objects not updating when backend redirects to /devices
 
 __Back end__
-- [ ] Devise a method of removing a device from the controller logic when pump override is implemented.
+- [x] Devise a method of removing a device from the controller logic when pump override is implemented.
+- [x] Publish to an overrides topic the list overrided devices for retrieval on flask/react
+- [ ] When device is overridden and pump is running with the high switch inactive, setting the mode back to automatic does not immediately turn the pump off. When the device is removed from the overridden list we need to poll it for its current status.
+- [ ] Using the switch button to manually control the function of the pump does not produce mqtt messages and events are not logged. Not a major issue at present but worth noting.
 - [ ] Incorporate security through mqtt and ssl. Deploy.
 - [x] Restarting the controller on server requires a poll uplink at the end of the procedure to get curent status.
 
@@ -25,6 +29,8 @@ __Infrastructure__
 - [X] Figure out how to get react to periodically retrieve data from the flask-mqtt endpoint
 
 ## Notes
+IMPORTANT - I inadvertantly created a DOS on the end node by making changes to the react app that would send downlinks everytime the useEffect fucntion ran. This was due to onClick calling the function directly instead of as an arguement to an anonymous function thereby making it a handler or something. will need to look in to this, moral of the story though, be absolutely sure that your program does not spam the end node as it will easily be overwhelmed particularly if confirmed downlinks are used.
+
 Youtube [tutorial](https://www.youtube.com/watch?v=YyuyqPVQNrs) detailing how to set map theme to dark mode or in our case aubergine.
 React front end with flask back end, follow [this tutorial.](https://www.youtube.com/watch?v=7LNl2JlZKHA)
 

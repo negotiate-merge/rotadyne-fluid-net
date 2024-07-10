@@ -7,15 +7,13 @@
 # https://www.thethingsindustries.com/docs/integrations/mqtt/mqtt-clients/eclipse-paho/)
 #
 import dm
-import os
 import sys
 import logging
 from paho.mqtt import client as mqtt
 import json
 import config
-import csv
 import random
-# import base64
+import re
 from d_send import switch
 from datetime import datetime
 
@@ -24,8 +22,7 @@ PUBLIC_TLS_ADDRESS = config.server
 APP_ID = config.app_id
 
 PUBLIC_TLS_ADDRESS_PORT = 1883
-DEVICE_ID = "a84041e081893e7f"
-ALL_DEVICES = True
+
 
 # Meaning Quality of Service (QoS)
 # QoS = 0 - at most once
@@ -60,40 +57,63 @@ def on_connect(client, userdata, flags, rc):
         print("\nFailed to connect, return code = " + str(rc))
 
 pumping = False
+overrides = []
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, message):
     print("\nMessage received on topic '" + message.topic + "' with QoS = " + str(message.qos))
 
     global pumping
+    global overrides
 
     parsed_json = json.loads(message.payload)
     # print("length of json [object] is", len(parsed_json['object']))
-    try:
-        if len(parsed_json['object']) == 12:
-            pumping = True if parsed_json['object']['RO2_status'] == 'ON' else False     # RO2
-            emergency_switch = parsed_json['object']['DI1_status']      # DI1
-            control_switch = parsed_json['object']['DI2_status']        # DI2
-            pump = parsed_json['object']['RO2_status']                  # RO2
 
-            ''' Values are inverted - L indicates high, H indicates low '''
-            print(f'emergency = {emergency_switch}  control = {control_switch}  pump = {pump}\npumping = {pumping}')
-            if emergency_switch == 'L' and control_switch == 'L' and not pumping:
-                switch(DEVICE_ID, dm.r2On)              # Switch pump on
-                print("Pump turned on")
-                logging.info(f'{DEVICE_ID} pumping activated')
-            elif pumping:
-                if control_switch == 'H':
-                    switch(DEVICE_ID, dm.r2Off)             # Switch pump off
-                    print("Pump turned off - normal operation")
-                    logging.info(f'{DEVICE_ID} pumping de-activated')
-                if emergency_switch == 'H':
-                    switch(DEVICE_ID, dm.r2Off)             # Switch pump off
-                    print("Pump turned off - emergency")
-                    logging.warning(f'{DEVICE_ID} pumping stopped due to emergency switch')
-    except KeyError:
-        # We have a different response that we want to read the output of
-        print("Payload (Expanded): \n" + json.dumps(parsed_json, indent=4))    
+    # Get device ID from message topic
+    device_id = re.search("/device/(.{16})", message.topic)
+    device_id = str(device_id[1])
+
+    # Toggle override logic
+    if 'mode' in message.topic:
+        try:
+            if parsed_json['override'] == 'True' and device_id not in overrides: overrides.append(device_id)
+            if parsed_json['override'] == 'False': overrides.remove(device_id)
+        except ValueError:
+            print('Device not on overrides list.')
+        print("Overriden devices:")
+        print(overrides)
+
+        override_topic = 'application/f65551c8-a6d4-48aa-b177-7567744a9540/overrides'
+        override_message = json.dumps(overrides)
+        mqttc.publish(override_topic, override_message)
+        
+    if 'event/up' in message.topic and device_id not in overrides:
+        try:
+            if len(parsed_json['object']) == 12:
+                # Extract state from json 
+                pumping = True if parsed_json['object']['RO2_status'] == 'ON' else False     # RO2
+                emergency_switch = parsed_json['object']['DI1_status']      # DI1
+                control_switch = parsed_json['object']['DI2_status']        # DI2
+                pump = parsed_json['object']['RO2_status']                  # RO2
+
+                """ Values are inverted - L indicates high, H indicates low """
+                print(f'emergency = {emergency_switch}  control = {control_switch}  pump = {pump}\npumping = {pumping}')
+                if emergency_switch == 'L' and control_switch == 'L' and not pumping:
+                    switch(device_id, dm.r2On)              # Switch pump on
+                    print("Switching pump on")
+                    logging.info(f'{device_id} pumping activated')
+                elif pumping:
+                    if control_switch == 'H':
+                        switch(device_id, dm.r2Off)             # Switch pump off
+                        print("Switching pump off")
+                        logging.info(f'{device_id} pumping de-activated')
+                    if emergency_switch == 'H':
+                        switch(device_id, dm.r2Off)             # Switch pump off
+                        print("Pump turned off - emergency")
+                        logging.warning(f'{device_id} pumping stopped due to emergency switch')
+        except KeyError:
+            # We have a different response that we want to read the output of
+            print("Payload (Expanded): \n" + json.dumps(parsed_json, indent=4))    
 
     if DEBUG:
         # print("Payload (Collapsed): " + str(message.payload))
@@ -128,7 +148,8 @@ client_id = f'python-mqtt-{random.randint(0, 1000)}'
 
 print("Create new mqtt client instance")
 # Added first arguement due to breaking Changes migrating to version 2 paho
-mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id) 
+# mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id)
+mqttc = mqtt.Client(client_id) 
 
 print("Assign callback functions")
 mqttc.on_connect = on_connect
@@ -142,17 +163,17 @@ print("Connecting to broker: " + PUBLIC_TLS_ADDRESS + ":" + str(PUBLIC_TLS_ADDRE
 logging.info("Connecting to broker: " + PUBLIC_TLS_ADDRESS + ":" + str(PUBLIC_TLS_ADDRESS_PORT))
 mqttc.connect(PUBLIC_TLS_ADDRESS, PUBLIC_TLS_ADDRESS_PORT, 60)
 
-if len(DEVICE_ID) != 0:
-    topic = "application/" + APP_ID + "/device/" + DEVICE_ID + "/event/up"
-    print("subscribe to topic " + topic + " with QOS = " + str(QOS))
-    mqttc.subscribe(topic, QOS)
-    logging.info("subscribed to topic " + topic + " with QOS = " + str(QOS))
-else:
-    print("Can not subscribe to any topic")
-    logging.critical("Could not subscribe to any topic")
-    stop(mqttc)    
+topic = [
+    ("application/" + APP_ID + "/device/" + "+" + "/event/up", QOS),
+    ("application/" + APP_ID + "/device/" + "+" + "/mode", QOS)
+]
+mqttc.subscribe(topic)
+print("subscribed to topics")
+for t in topic:
+    print(t[0] + " with QOS = " + str(t[1]))
+    logging.info("subscribed to topic " + t[0] + " with QOS = " + str(t[1]))  
 
-print("And run forever")
+print("Controller loop running")
 try:
     run = True
     while run:

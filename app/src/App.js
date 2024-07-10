@@ -68,6 +68,20 @@ function pinColor(point) {
     }
 }
 
+function buttonClick(url, point) {
+    let xhr = new XMLHttpRequest();
+    //let url = "/pump_switch";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json")
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            XPathResult.innerHTML = this.response.Text;
+        }
+    };
+    var data = JSON.stringify(point);
+    xhr.send(data);
+}
+
 const Marker = ({point}) => {
 
     const [markerRef, marker] = useAdvancedMarkerRef();
@@ -114,6 +128,34 @@ const Marker = ({point}) => {
                             <tr>
                                 <td>Switch Pump:</td>
                                 <td>
+                                    <button type="submit" onClick={() => buttonClick("/pump_switch", point)}>
+                                        {(point.pumping) ? "Off" : "On"}
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>{(!point.overide) ? "Automatic" : "Manual"}</td>
+                                <td>
+                                    <button type="submit" onClick={() => {
+                                        // Control the switch state.
+                                        point.override = !point.override;
+                                        buttonClick("/pump_overide", point)}}>Switch
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </InfoWindow> }
+        </AdvancedMarker>
+    );
+};
+
+export default App
+
+/*      Working button post wth onclick anon func
+                            <tr>
+                                <td>Switch Pump:</td>
+                                <td>
                                     <button type="submit" onClick={() => {
                                         let xhr = new XMLHttpRequest();
                                         let url = "/pump_switch";
@@ -130,12 +172,5 @@ const Marker = ({point}) => {
                                     }>{(point.pumping) ? "Off" : "On"}</button>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-            </InfoWindow> }
-        </AdvancedMarker>
-    );
-};
-
-export default App
+*/
 
