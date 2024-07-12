@@ -7,12 +7,13 @@ The current scada system in use is the scadapack 334 by schnieder. Need to look 
 
 __Front end__
 - [ ] Reading from presure sensor
-- [ ] react objects not updating when backend redirects to /devices
+- [ ] Unsure if this a real thing, will keep an eye on it. "react objects not updating when backend redirects to /devices"
 
 __Back end__
 - [x] Devise a method of removing a device from the controller logic when pump override is implemented.
-- [x] Publish to an overrides topic the list overrided devices for retrieval on flask/react
-- [ ] When device is overridden and pump is running with the high switch inactive, setting the mode back to automatic does not immediately turn the pump off. When the device is removed from the overridden list we need to poll it for its current status.
+- [x] Publish to an overrides topic the list overrided devices for retrieval on flask/react.
+- [x] The flask application starts up with no knowledge of the status of the nodes. It will need to run a poll on each device in order to get thier current status. This should only run once on start-up possibly as part of the on con-connect or on-subsribe callback functions.
+- [x] When device is overridden and pump is running with the high switch inactive, setting the mode back to automatic does not immediately turn the pump off. When the device is removed from the overridden list we need to poll it for its current status.
 - [ ] Using the switch button to manually control the function of the pump does not produce mqtt messages and events are not logged. Not a major issue at present but worth noting.
 - [ ] Incorporate security through mqtt and ssl. Deploy.
 - [x] Restarting the controller on server requires a poll uplink at the end of the procedure to get curent status.

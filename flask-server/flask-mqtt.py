@@ -9,7 +9,7 @@ sys.path.append(root_dir)
 
 from flask import Flask, redirect, request, jsonify
 from flask_mqtt import Mqtt
-from d_send import switch, pump_on, pump_off
+from d_send import send_downlink, pump_on, pump_off, get_device_status
 
 app = Flask(__name__)
 
@@ -57,11 +57,17 @@ inactive = []
 
 @mqtt_client.on_connect()
 def handle_connect(client, userdata, flags, rc):
-   if rc == 0:
-       print('Connected successfully')
-       mqtt_client.subscribe(topic) # subscribe topic
-   else:
-       print('Bad connection. Code:', rc)
+    if rc == 0:
+        print('Connected successfully')
+        mqtt_client.subscribe(topic) # subscribe topic
+        print("Getting initial device status's")
+        try:
+            for d in devices:
+                send_downlink(d['devId'], get_device_status)
+        except:
+            print(f"device {d['devId']} is a dummy unit. Ignoring.")
+    else:
+        print('Bad connection. Code:', rc)
 
 
 @mqtt_client.on_message()
@@ -111,8 +117,9 @@ def pump_overide():
     pump = request.get_json()
     # Publish device override message to mqtt topic
     o_topic = f"application/f65551c8-a6d4-48aa-b177-7567744a9540/device/{pump['devId']}/mode"
-    o_message = '{"override": "%s"}'%(pump['override']) # TODO set the value here
+    o_message = '{"override": "%s"}'%(pump['override'])
     mqtt_client.publish(o_topic, o_message, 0)
+    if not pump['override']: send_downlink(pump['devId'], get_device_status)
     return redirect("/devices")
 
 @app.route('/pump_switch', methods=['POST'])
@@ -121,7 +128,7 @@ def pump_switch():
     pump = request.get_json()
     try:
         if pump['devId'] in inactive:
-            switch(pump['devId'], (pump_off if pump['pumping'] else pump_on))
+            send_downlink(pump['devId'], (pump_off if pump['pumping'] else pump_on))
     except:
         print('grpc call failed - no valid device at head end')
     # print(pump)

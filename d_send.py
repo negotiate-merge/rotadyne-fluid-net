@@ -12,8 +12,9 @@ api_token = config.api_token
 
 pump_on = dm.r2On
 pump_off = dm.r2Off
+get_device_status = dm.poll_uplink
 
-def switch(dev_eui:str, byte_object):
+def send_downlink(dev_eui:str, byte_object):
     # Connect without using TLS.
     channel = grpc.insecure_channel(server)
 
@@ -46,4 +47,4 @@ if __name__ == '__main__':
     byte_object = bytes(byte_values)
 
     print(f'Sending {byte_object} to {dev_eui}')
-    switch(dev_eui, byte_object)
+    send_downlink(dev_eui, byte_object)

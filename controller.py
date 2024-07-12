@@ -14,7 +14,7 @@ import json
 import config
 import random
 import re
-from d_send import switch
+from d_send import send_downlink
 from datetime import datetime
 
 # Chirpstack connection details
@@ -99,16 +99,16 @@ def on_message(client, userdata, message):
                 """ Values are inverted - L indicates high, H indicates low """
                 print(f'emergency = {emergency_switch}  control = {control_switch}  pump = {pump}\npumping = {pumping}')
                 if emergency_switch == 'L' and control_switch == 'L' and not pumping:
-                    switch(device_id, dm.r2On)              # Switch pump on
+                    send_downlink(device_id, dm.r2On)              # Switch pump on
                     print("Switching pump on")
                     logging.info(f'{device_id} pumping activated')
                 elif pumping:
                     if control_switch == 'H':
-                        switch(device_id, dm.r2Off)             # Switch pump off
+                        send_downlink(device_id, dm.r2Off)             # Switch pump off
                         print("Switching pump off")
                         logging.info(f'{device_id} pumping de-activated')
                     if emergency_switch == 'H':
-                        switch(device_id, dm.r2Off)             # Switch pump off
+                        send_downlink(device_id, dm.r2Off)             # Switch pump off
                         print("Pump turned off - emergency")
                         logging.warning(f'{device_id} pumping stopped due to emergency switch')
         except KeyError:
@@ -149,7 +149,7 @@ client_id = f'python-mqtt-{random.randint(0, 1000)}'
 print("Create new mqtt client instance")
 # Added first arguement due to breaking Changes migrating to version 2 paho
 # mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id)
-mqttc = mqtt.Client(client_id) 
+mqttc = mqtt.Client(client_id)
 
 print("Assign callback functions")
 mqttc.on_connect = on_connect
