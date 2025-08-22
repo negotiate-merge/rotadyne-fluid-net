@@ -22,7 +22,7 @@ function App() {
             .catch((error) => {
                 console.error("Error fetching data: ", error);
             })
-        }, 5000);
+        }, 2000);
 
         return () => clearInterval(intervalId);
 

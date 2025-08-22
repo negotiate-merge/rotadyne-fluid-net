@@ -8,6 +8,7 @@ The current scada system in use is the scadapack 334 by schnieder. Need to look 
 __Front end__
 - [ ] Reading from presure sensor
 - [ ] Unsure if this a real thing, will keep an eye on it. "react objects not updating when backend redirects to /devices"
+- [ ] Need to make the pop up data more responsive and also better reflect the status. Particularly if there is an emergency and the pump is running. Need to be able to see easily that this is the case.
 
 __Back end__
 - [x] Devise a method of removing a device from the controller logic when pump override is implemented.
@@ -19,6 +20,7 @@ __Back end__
 - [x] Restarting the controller on server requires a poll uplink at the end of the procedure to get curent status.
 
 __Infrastructure__
+- [ ] There are reliability issues when swtiching. The messages are not always getting through. Going to have to have a really good look at making the transmissions confirmed.
 - [ ] When the gateway goes offline and the node is unable to communicate the messages get quede' up due to having not recevied an ack. Once the node comes back online it spams chirpstack and by extension the mqtt feed which resluts in a preriod of sporadic behaviour. This should be avoided as we do not require unecessary switching of the machine in response to events of the past, we only care about the current state in this case. Perhaps we could look at a timestamp validity check?
 
 

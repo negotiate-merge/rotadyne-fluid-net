@@ -22,6 +22,9 @@ PUBLIC_TLS_ADDRESS = config.server
 APP_ID = config.app_id
 
 PUBLIC_TLS_ADDRESS_PORT = 1883
+CA_CERT = "/home/nigel/certs/test-client/ca.crt"
+TLS_CERT = "/home/nigel/certs/test-client/client.crt"
+TLS_KEY = "/home/nigel/certs/test-client/client.key"
 
 
 # Meaning Quality of Service (QoS)
@@ -69,9 +72,13 @@ def on_message(client, userdata, message):
     parsed_json = json.loads(message.payload)
     # print("length of json [object] is", len(parsed_json['object']))
 
-    # Get device ID from message topic
-    device_id = re.search("/device/(.{16})", message.topic)
-    device_id = str(device_id[1])
+    try:
+        # Get device ID from message topic
+        device_id = re.search("/device/(.{16})", message.topic)
+        device_id = str(device_id[1])
+    except TypeError:
+        print(parsed_json)
+        return
 
     # Toggle override logic
     if 'mode' in message.topic:
@@ -156,16 +163,19 @@ mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
 mqttc.on_disconnect = on_disconnect
-# mqttc.on_log = on_log  # Logging for debugging OK, waste
+# mqttc.on_log = on_log  # Logging for debugging
 
 logging.info("Controller process started")
 print("Connecting to broker: " + PUBLIC_TLS_ADDRESS + ":" + str(PUBLIC_TLS_ADDRESS_PORT))
 logging.info("Connecting to broker: " + PUBLIC_TLS_ADDRESS + ":" + str(PUBLIC_TLS_ADDRESS_PORT))
+
+# mqttc.tls_set(ca_certs=CA_CERT, certfile=TLS_CERT, keyfile=TLS_KEY)
 mqttc.connect(PUBLIC_TLS_ADDRESS, PUBLIC_TLS_ADDRESS_PORT, 60)
 
 topic = [
     ("application/" + APP_ID + "/device/" + "+" + "/event/up", QOS),
-    ("application/" + APP_ID + "/device/" + "+" + "/mode", QOS)
+    ("application/" + APP_ID + "/device/" + "+" + "/mode", QOS),
+    ("au915/gateway/a840411d02604150/event/up", QOS)
 ]
 mqttc.subscribe(topic)
 print("subscribed to topics")

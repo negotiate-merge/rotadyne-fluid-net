@@ -1,0 +1,14 @@
+__pycache__/
+app/README.md
+app/node_modules/
+app/package-lock.json
+app/public/
+app/src/App.css
+app/src/chat_App.js
+app/src/index.js
+app/src/reportWebVitals.js
+app/src/setupTests.js
+app_backup_files/
+config.py
+controller.log
+venv/

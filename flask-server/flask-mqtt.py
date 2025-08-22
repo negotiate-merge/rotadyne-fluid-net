@@ -13,7 +13,7 @@ from d_send import send_downlink, pump_on, pump_off, get_device_status
 
 app = Flask(__name__)
 
-app.config['MQTT_BROKER_URL'] = '34.87.236.101'
+app.config['MQTT_BROKER_URL'] = 'chirp.synergitech.com.au'
 app.config['MQTT_BROKER_PORT'] = 1883
 app.config['MQTT_USERNAME'] = ''  # Set this item when you need to verify username and password
 app.config['MQTT_PASSWORD'] = ''  # Set this item when you need to verify username and password
